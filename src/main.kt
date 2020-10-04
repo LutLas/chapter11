@@ -32,12 +32,26 @@ fun main() {
     }
 
    val celsius = getConversionLambda("CentigradeToFahrenheit")(2.5)
+    val pounds = getConversionLambda("KgsToPounds")(2.5)
     println(celsius)
+    println(pounds)
+    //Define two conversion lambdas
+    val kgsToPounds = { x: Double -> x*2.204623}
+    val poundsToUSTons = {x:Double -> x/2000.0}
+
+    //Combine the two lambdas to create a new one
+    val kgsToUSTons = combine(kgsToPounds,poundsToUSTons)
+
+    //Invoke the kgsToUSTons lambda
+    val usTons = kgsToUSTons(1000.0)
+    println(usTons)
 }
+
+typealias DoubleConversion = (Double)->Double
 
 fun convert(
       x: Double,
-      converter: (Double)->Double
+      converter: DoubleConversion
 ):Double{
     val result = converter(x)
     println("$x is converted to $result")
@@ -63,7 +77,7 @@ fun unless(
     }
 }
 
-fun getConversionLambda(str: String):(Double)->Double{
+fun getConversionLambda(str: String):DoubleConversion{
     when (str) {
         "CentigradeToFahrenheit" -> {
             return{ it * 1.8 + 32 }
@@ -78,4 +92,11 @@ fun getConversionLambda(str: String):(Double)->Double{
             return{ it }
         }
     }
+}
+
+fun combine(
+    lambda1:DoubleConversion,
+    lambda2:DoubleConversion
+):DoubleConversion{
+    return {x:Double->lambda2(lambda1(x))}
 }
